@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +35,7 @@ public class LoginController {
         EventModel eventModel = new EventModel();
         eventModel.setEventType(EventType.LOGIN);
         eventModel.setExt("username", username);
-        eventModel.setExt("email","791064264@qq.com");
+        eventModel.setExt("email", "791064264@qq.com");
         eventProducer.fireEvent(eventModel);
         try {
             Map<String, String> map = userService.login(username, password);
@@ -67,19 +68,29 @@ public class LoginController {
                       HttpServletResponse response) {
         try {
             Map<String, String> map = userService.reg(username, password);
+            model.addAttribute("msg", map.get("msg"));
+            return "login";
+
+        } catch (Exception e) {
+            model.addAttribute("msg", "注册异常");
+            return "login";
+        }
+    }
+
+    @RequestMapping(path = {"/regok"}, method = {RequestMethod.GET})
+    public String regok(Model model, @RequestParam(value = "username") String username,
+                      @RequestParam(value = "salt") String salt, HttpServletResponse response) {
+        try {
+            Map<String, String> map = userService.regok(salt, username);
+            if(map==null)
+                throw new Exception("注册异常");
             if (map.containsKey("ticket")) {
                 Cookie cookie = new Cookie("ticket", map.get("ticket"));
                 cookie.setPath("/");
-                if (rememberme)
-                    cookie.setMaxAge(3600 * 24 * 5);
                 response.addCookie(cookie);
-                if (StringUtils.isNotBlank(next))
-                    return "redirect:" + next;
-                return "redirect:/";
-            } else {
-                model.addAttribute("msg", map.get("msg"));
-                return "login";
             }
+            return "redirect:http://localhost:8888/index";
+
         } catch (Exception e) {
             model.addAttribute("msg", "注册异常");
             return "login";

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -24,11 +25,21 @@ public class MailSender implements InitializingBean {
     @Autowired
     private VelocityEngine velocityEngine;
 
+    @Value("${mail_username}")
+    private String mail_username;
+
+    @Value("${mail_password}")
+    private String mail_password;
+
+    @Value("${username}")
+    private String username;
+
+
     public boolean sendWithHTMLTemplate(String to, String subject,
                                         String template, Map<String, Object> model){
         try {
-            String nick = MimeUtility.encodeText("闫耀康");
-            InternetAddress from = new InternetAddress(nick+"<1721277082@qq.com>");
+            String nick = MimeUtility.encodeText(username);
+            InternetAddress from = new InternetAddress(nick+"<"+mail_username+">");
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
             String result = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, template, "UTF-8", model);
@@ -47,8 +58,8 @@ public class MailSender implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         mailSender = new JavaMailSenderImpl();
-        mailSender.setUsername("1721277082@qq.com");
-        mailSender.setPassword("txdiybrqymxpcfba");
+        mailSender.setUsername(mail_username);
+        mailSender.setPassword(mail_password);
         mailSender.setHost("smtp.qq.com");
         mailSender.setPort(465);
         mailSender.setProtocol("smtps");

@@ -118,7 +118,7 @@ public class SensitiveService implements InitializingBean {
             Character c = lineText.charAt(i);
             //过滤空格
             if(isSymbol(c))
-                continue;;
+                continue;
 
             TreeNode node = tempNode.getSubNode(c);
             if(node==null){

@@ -27,6 +27,8 @@ public class PassportInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
         String ticket = null;
         for(Cookie cookie : httpServletRequest.getCookies()){
+            if(cookie==null)
+                break;
             if(cookie.getName().equals("ticket"))
                 ticket = cookie.getValue();
         }
